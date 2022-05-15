@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS doneclub.users;
+CREATE TABLE users (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    status TINYINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME,
+
+    PRIMARY KEY (id)
+)
