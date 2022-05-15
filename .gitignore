@@ -1,3 +1,4 @@
 /.env
 /logs/
 .idea
+/test_http.http
