@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	usersUrl = "/users"
-	userUrl  = "/users/:user_id"
+	usersUrl = "/api/users"
+	//userUrl  = "/api/users/:user_id"
 )
 
 type handler struct {
@@ -19,14 +19,14 @@ type handler struct {
 }
 
 func (h *handler) Register(router *httprouter.Router) {
-	router.POST(usersUrl, h.CreateUser)
+	router.HandlerFunc(http.MethodPost, usersUrl, h.CreateUser)
 }
 
 func NewHandler(service user.Service) api.Handler {
 	return &handler{service: service}
 }
 
-func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var request user.CreateUserRequestDTO
 	ctx := context.Background()
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -36,7 +36,8 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params http
 		response, err := h.service.CreateUser(ctx, &request)
 		if err != nil {
 			api.WriteResponse(w, err.Code, err.AsMessage())
+		} else {
+			api.WriteResponse(w, http.StatusOK, response)
 		}
-		api.WriteResponse(w, http.StatusOK, response)
 	}
 }
