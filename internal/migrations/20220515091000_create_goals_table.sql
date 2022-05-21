@@ -9,8 +9,8 @@ CREATE TABLE doneclub.goals
     description LONGTEXT,
     start_date  DATETIME,
     end_date    DATETIME,
-    created_at  DATETIME         NOT NULL,
-    updated_at  DATETIME         NOT NULL,
+    created_at  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at  DATETIME,
 
     PRIMARY KEY (id),
