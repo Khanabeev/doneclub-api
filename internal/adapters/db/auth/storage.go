@@ -2,11 +2,11 @@ package auth
 
 import (
 	"doneclub-api/internal/domain/auth"
-	"doneclub-api/pkg/logging"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type Storage struct {
@@ -22,8 +22,7 @@ func (r Storage) IsAuthorized(token string, routeName string, vars map[string]st
 	} else {
 		m := map[string]bool{}
 		if err = json.NewDecoder(response.Body).Decode(&m); err != nil {
-			logger := logging.GetLogger()
-			logger.Error("Error while decoding response from auth server:" + err.Error())
+			//fmt.Println("Error while decoding response from auth server:" + err.Error())
 			return false
 		}
 		return m["isAuthorized"]
@@ -41,7 +40,9 @@ func (r Storage) IsAuthorized(token string, routeName string, vars map[string]st
   Sample: /auth/verify?token=aaaa.bbbb.cccc&routeName=MakeTransaction&customer_id=2000&account_id=95470
 */
 func buildVerifyURL(token string, routeName string, vars map[string]string) string {
-	u := url.URL{Host: "localhost:8000", Path: "/api/auth/verify", Scheme: "http"}
+	host := os.Getenv("AUTH_SERVER")
+	path := os.Getenv("AUTH_PATH")
+	u := url.URL{Host: host, Path: path, Scheme: "http"}
 	q := u.Query()
 	q.Add("token", token)
 	q.Add("routeName", routeName)
