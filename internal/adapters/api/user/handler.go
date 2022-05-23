@@ -8,8 +8,7 @@ import (
 )
 
 const (
-	usersUrl = "/api/users"
-	userUrl  = "/api/users/{user_id:[0-9]+}"
+	userProfileUrl = "/api/users/profile"
 )
 
 type handler struct {
@@ -18,26 +17,15 @@ type handler struct {
 
 func (h *handler) Register(router *mux.Router) {
 	router.
-		HandleFunc(userUrl, h.GetUser).
+		HandleFunc(userProfileUrl, h.GetUserProfile).
 		Methods(http.MethodGet).
-		Name("GetUser")
-
-	router.
-		HandleFunc(usersUrl, h.GetUsers).
-		Methods(http.MethodGet).
-		Name("GetUsers")
+		Name("GetUserProfile")
 }
 
 func NewHandler(service user.Service) api.Handler {
 	return &handler{service: service}
 }
 
-func (h handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	api.WriteResponse(w, http.StatusOK, vars)
-}
+func (h handler) GetUserProfile(w http.ResponseWriter, r *http.Request) {
 
-func (h handler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	vars := []string{"Hello world"}
-	api.WriteResponse(w, http.StatusOK, vars)
 }

@@ -7,7 +7,6 @@ import (
 )
 
 type Service interface {
-	FindUserById(ctx context.Context, dto *GetUserDTO) (*User, *apperrors.AppError)
 	FindUserByEmail(ctx context.Context, userEmail string) (*User, *apperrors.AppError)
 }
 
@@ -17,10 +16,6 @@ type service struct {
 
 func NewService(storage Storage) Service {
 	return &service{storage: storage}
-}
-
-func (s *service) FindUserById(ctx context.Context, dto *GetUserDTO) (*User, *apperrors.AppError) {
-	return nil, nil
 }
 
 func (s *service) FindUserByEmail(ctx context.Context, userEmail string) (*User, *apperrors.AppError) {

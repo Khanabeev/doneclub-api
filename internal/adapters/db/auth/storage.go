@@ -12,6 +12,11 @@ import (
 type Storage struct {
 }
 
+type VerifiedResponse struct {
+	UserId     int  `json:"user_id"`
+	IsVerified bool `json:"is_verified"`
+}
+
 func (r Storage) IsAuthorized(token string, routeName string, vars map[string]string) bool {
 
 	u := buildVerifyURL(token, routeName, vars)
@@ -20,12 +25,12 @@ func (r Storage) IsAuthorized(token string, routeName string, vars map[string]st
 		fmt.Println("Error while sending..." + err.Error())
 		return false
 	} else {
-		m := map[string]bool{}
+		m := VerifiedResponse{}
 		if err = json.NewDecoder(response.Body).Decode(&m); err != nil {
 			//fmt.Println("Error while decoding response from auth server:" + err.Error())
 			return false
 		}
-		return m["isAuthorized"]
+		return m.IsVerified
 	}
 }
 
