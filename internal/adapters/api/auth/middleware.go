@@ -1,17 +1,30 @@
 package auth
 
 import (
+	"context"
 	"doneclub-api/internal/adapters/api"
 	"doneclub-api/internal/domain/auth"
 	"doneclub-api/pkg/apperrors"
+	"doneclub-api/pkg/logging"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Middleware struct {
 	Storage auth.Storage
 }
+
+type UserClaims struct {
+	ID    int
+	Email string
+	Role  string
+}
+
+type ContextKey string
+
+const ContextUserKey ContextKey = "user"
 
 func (a Middleware) AuthorizationHandler() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -26,7 +39,24 @@ func (a Middleware) AuthorizationHandler() func(http.Handler) http.Handler {
 				isAuthorized := a.Storage.IsAuthorized(token, currentRoute.GetName(), currentRouteVars)
 
 				if isAuthorized {
-					next.ServeHTTP(w, r)
+					claims, err := ClaimsFromToken(token)
+					if err != nil {
+						logger := logging.GetLogger()
+						logger.Error(err)
+						appError := apperrors.NewUnauthorizedError("Incorrect token claims").AsMessage()
+						api.WriteResponse(w, appError.Code, appError.AsMessage())
+					}
+					ctx, cancel := context.WithTimeout(r.Context(), time.Duration(60*time.Second))
+					defer cancel()
+
+					u := &UserClaims{
+						ID:    claims.UserID,
+						Email: claims.Email,
+						Role:  claims.Role,
+					}
+
+					ctx = context.WithValue(r.Context(), ContextUserKey, u)
+					next.ServeHTTP(w, r.WithContext(ctx))
 				} else {
 					appError := apperrors.NewUnauthorizedError("Unauthorized")
 					api.WriteResponse(w, appError.Code, appError.AsMessage())

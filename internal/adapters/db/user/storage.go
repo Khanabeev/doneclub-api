@@ -37,7 +37,19 @@ func (s *storage) CreateUser(user *user.User) (*user.User, error) {
 	return user, nil
 }
 func (s *storage) GetUserById(userId int) (*user.User, error) {
-	return nil, nil
+	var u user.User
+
+	query := "SELECT id, email, status, created_at FROM doneclub.users WHERE id = ? AND deleted_at IS NULL LIMIT  1"
+	err := s.client.Get(&u, query, userId)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
 }
 
 func (s *storage) GetUserByEmail(userEmail string) (*user.User, error) {

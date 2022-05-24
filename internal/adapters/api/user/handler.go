@@ -27,5 +27,10 @@ func NewHandler(service user.Service) api.Handler {
 }
 
 func (h handler) GetUserProfile(w http.ResponseWriter, r *http.Request) {
-
+	response, err := h.service.FindUserById(r.Context())
+	if err != nil {
+		api.WriteResponse(w, err.Code, err.AsMessage())
+	} else {
+		api.WriteResponse(w, http.StatusOK, response)
+	}
 }
