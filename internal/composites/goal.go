@@ -7,18 +7,18 @@ import (
 	"doneclub-api/internal/domain/user"
 )
 
-type UserComposite struct {
+type GoalComposite struct {
 	Storage user.Storage
 	Service user.Service
 	Handler api.Handler
 }
 
-func NewUserComposite(dbComposite *MySQLComposite) (*UserComposite, error) {
+func NewGoalComposite(dbComposite *MySQLComposite) (*GoalComposite, error) {
 	storage := user2.NewStorage(dbComposite.client)
 	service := user.NewService(storage)
 	handler := user3.NewHandler(service)
 
-	return &UserComposite{
+	return &GoalComposite{
 		Storage: storage,
 		Service: service,
 		Handler: handler,
