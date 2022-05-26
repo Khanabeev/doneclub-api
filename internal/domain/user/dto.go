@@ -1,8 +1,12 @@
 package user
 
-type ResponseGetUserProfileDTO struct {
-	ID        int    `json:"id"`
-	Email     string `json:"email"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"created_at"`
+type ResponseUserDTO struct {
+	User *ProfileUser `json:"user"`
+}
+
+type ProfileUser struct {
+	ID        int    `json:"id,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Status    string `json:"status,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
 }

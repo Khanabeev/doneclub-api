@@ -8,7 +8,7 @@ import (
 )
 
 type Service interface {
-	FindUserById(ctx context.Context) (*ResponseGetUserProfileDTO, *apperrors.AppError)
+	FindUserById(ctx context.Context) (*ResponseUserDTO, *apperrors.AppError)
 }
 
 type service struct {
@@ -19,19 +19,19 @@ func NewService(storage Storage) Service {
 	return &service{storage: storage}
 }
 
-func (s *service) FindUserById(ctx context.Context) (*ResponseGetUserProfileDTO, *apperrors.AppError) {
+func (s *service) FindUserById(ctx context.Context) (*ResponseUserDTO, *apperrors.AppError) {
 	logger := logging.GetLogger()
 	userClaims, ok := ctx.Value(auth.ContextUserKey).(*auth.UserClaims)
 	if !ok {
 		logger.Error("Unexpected error while getting user claims in FindUserById method")
 	}
 
-	userDb, err := s.storage.GetUserById(userClaims.ID)
+	u, err := s.storage.GetUserById(userClaims.ID)
 	if err != nil {
 		logger.Error(err)
 		return nil, apperrors.NewUnexpectedError("Unexpected error while validating user email")
 	}
-	u := userDb.ToDtoUserProfile()
+	response := u.GetUserProfileResource()
 
-	return u, nil
+	return response, nil
 }

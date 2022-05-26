@@ -17,15 +17,6 @@ const (
 	banned   = 3
 )
 
-func (u *User) ToDtoUserProfile() *ResponseGetUserProfileDTO {
-	return &ResponseGetUserProfileDTO{
-		ID:        u.ID,
-		Email:     u.Email,
-		Status:    u.getStatusAsString(),
-		CreatedAt: u.CreatedAt,
-	}
-}
-
 func (u *User) getStatusAsString() string {
 	var status string
 	switch u.Status {

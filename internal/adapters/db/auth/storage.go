@@ -13,7 +13,6 @@ type Storage struct {
 }
 
 type VerifiedResponse struct {
-	UserId     int  `json:"user_id"`
 	IsVerified bool `json:"is_verified"`
 }
 

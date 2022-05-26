@@ -2,7 +2,9 @@ package goal
 
 import (
 	"doneclub-api/internal/adapters/api"
-	"doneclub-api/internal/domain/user"
+	"doneclub-api/internal/domain/goal"
+	"doneclub-api/pkg/apperrors"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -15,10 +17,10 @@ const (
 )
 
 type handler struct {
-	service user.Service
+	service goal.Service
 }
 
-func NewHandler(service user.Service) api.Handler {
+func NewHandler(service goal.Service) api.Handler {
 	return &handler{service: service}
 }
 
@@ -30,5 +32,16 @@ func (h *handler) Register(router *mux.Router) {
 }
 
 func (h handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
-	api.WriteResponse(w, http.StatusOK, "hello")
+	var dto goal.RequestCreateGoalDTO
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		api.WriteResponse(w, http.StatusBadRequest, apperrors.NewBadRequest("Incorrect request"))
+	} else {
+		response, appErr := h.service.CreateNewGoal(r.Context(), &dto)
+		if appErr != nil {
+			api.WriteResponse(w, appErr.Code, appErr.AsMessage())
+		} else {
+			api.WriteResponse(w, http.StatusOK, response)
+		}
+	}
 }
