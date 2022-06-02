@@ -9,7 +9,7 @@ import (
 
 type UserComposite struct {
 	Storage user.Storage
-	Service user.Service
+	Service user3.Service
 	Handler api.Handler
 }
 

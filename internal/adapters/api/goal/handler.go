@@ -17,10 +17,10 @@ const (
 )
 
 type handler struct {
-	service goal.Service
+	service Service
 }
 
-func NewHandler(service goal.Service) api.Handler {
+func NewHandler(service Service) api.Handler {
 	return &handler{service: service}
 }
 
@@ -29,6 +29,21 @@ func (h *handler) Register(router *mux.Router) {
 		HandleFunc(createGoalUrl, h.CreateGoal).
 		Methods(http.MethodPost).
 		Name("CreateGoal")
+
+	router.
+		HandleFunc(updateGoalUrl, h.UpdateGoal).
+		Methods(http.MethodPut).
+		Name("UpdateGoal")
+
+	router.
+		HandleFunc(getGoalUrl, h.CreateGoal).
+		Methods(http.MethodGet).
+		Name("GetGoal")
+
+	router.
+		HandleFunc(deleteGoalUrl, h.CreateGoal).
+		Methods(http.MethodDelete).
+		Name("DeleteGoal")
 }
 
 func (h handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +53,23 @@ func (h handler) CreateGoal(w http.ResponseWriter, r *http.Request) {
 		api.WriteResponse(w, http.StatusBadRequest, apperrors.NewBadRequest("Incorrect request"))
 	} else {
 		response, appErr := h.service.CreateNewGoal(r.Context(), &dto)
+		if appErr != nil {
+			api.WriteResponse(w, appErr.Code, appErr.AsMessage())
+		} else {
+			api.WriteResponse(w, http.StatusOK, response)
+		}
+	}
+}
+
+func (h handler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
+	var dto goal.RequestUpdateGoalDTO
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		api.WriteResponse(w, http.StatusBadRequest, apperrors.NewBadRequest("Incorrect request"))
+	} else {
+		vars := mux.Vars(r)
+		goalId := vars["goal_id"]
+		response, appErr := h.service.UpdateGoal(r.Context(), &dto, goalId)
 		if appErr != nil {
 			api.WriteResponse(w, appErr.Code, appErr.AsMessage())
 		} else {

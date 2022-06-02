@@ -2,7 +2,6 @@ package user
 
 import (
 	"doneclub-api/internal/adapters/api"
-	"doneclub-api/internal/domain/user"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -12,7 +11,7 @@ const (
 )
 
 type handler struct {
-	service user.Service
+	service Service
 }
 
 func (h *handler) Register(router *mux.Router) {
@@ -22,7 +21,7 @@ func (h *handler) Register(router *mux.Router) {
 		Name("GetUserProfile")
 }
 
-func NewHandler(service user.Service) api.Handler {
+func NewHandler(service Service) api.Handler {
 	return &handler{service: service}
 }
 

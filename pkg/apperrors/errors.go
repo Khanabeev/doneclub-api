@@ -17,6 +17,10 @@ func (ae *AppError) AsMessage() *AppError {
 	}
 }
 
+func (ae *AppError) Error() string {
+	return ae.Message
+}
+
 func NewNotFoundError(message string) *AppError {
 	return &AppError{
 		Message: message,

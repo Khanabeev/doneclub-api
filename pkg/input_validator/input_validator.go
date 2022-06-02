@@ -37,6 +37,7 @@ func (iv *InputValidator) getMessage(fieldError validator.FieldError) string {
 	e["lte"] = fmt.Sprintf("%s lenght must be less or equal %s", fieldError.Field(), fieldError.Param())
 	e["numeric"] = fmt.Sprintf("%s field must be numeric", fieldError.Field())
 	e["datetime"] = fmt.Sprintf("%s field must be in datetime format 2001-01-01 01:01:01", fieldError.Field())
+	e["oneof"] = fmt.Sprintf("%s field accepts only: %s", fieldError.Field(), fieldError.Param())
 
 	message, exists := e[fieldError.Tag()]
 	if exists {

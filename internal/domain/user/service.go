@@ -7,15 +7,11 @@ import (
 	"doneclub-api/pkg/logging"
 )
 
-type Service interface {
-	FindUserById(ctx context.Context) (*ResponseUserDTO, *apperrors.AppError)
-}
-
 type service struct {
 	storage Storage
 }
 
-func NewService(storage Storage) Service {
+func NewService(storage Storage) *service {
 	return &service{storage: storage}
 }
 

@@ -9,7 +9,7 @@ import (
 
 type GoalComposite struct {
 	Storage goal2.Storage
-	Service goal2.Service
+	Service goal3.Service
 	Handler api.Handler
 }
 
