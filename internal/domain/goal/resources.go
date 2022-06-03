@@ -22,3 +22,20 @@ func (g *Goal) GetGoalProfileResource() *ResponseGoalDTO {
 		},
 	}
 }
+
+func GetAllGoalsProfileResource(goals []*Goal) *ResponseAllGoalsDTO {
+	var allGoals []*ProfileGoal
+	for _, goal := range goals {
+		allGoals = append(allGoals, goal.GetGoalProfileResource().Goal)
+	}
+	return &ResponseAllGoalsDTO{
+		Goals: allGoals,
+	}
+}
+
+func DeletedGoalResource(goalId int, userId int) *ProfileGoalDeleted {
+	return &ProfileGoalDeleted{
+		ID:     goalId,
+		UserId: userId,
+	}
+}

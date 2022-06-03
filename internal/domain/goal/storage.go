@@ -1,10 +1,9 @@
 package goal
 
-import "doneclub-api/internal/domain/user"
-
 type Storage interface {
-	GetAllGoalsByUser(user *user.User, limit int, offset int) ([]*Goal, error)
-	GetGoalById(userId, goalId int) (*Goal, error)
+	GetAllGoalsByUserId(userId int, status int) ([]*Goal, error)
+	GetGoalById(userId int, goalId int) (*Goal, error)
+	DeleteGoalById(userId int, goalId int) error
 	CreateGoal(goal *Goal) (*Goal, error)
-	UpdateGoal(goal *Goal, goalId string) (*Goal, error)
+	UpdateGoal(goal *Goal, goalId int) (*Goal, error)
 }

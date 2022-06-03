@@ -2,10 +2,11 @@ package goal
 
 import (
 	"doneclub-api/internal/domain/goal"
-	"doneclub-api/internal/domain/user"
 	"doneclub-api/pkg/apperrors"
 	"doneclub-api/pkg/logging"
+	"errors"
 	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 type storage struct {
@@ -18,11 +19,33 @@ func NewStorage(client *sqlx.DB) goal.Storage {
 	}
 }
 
-func (s *storage) GetAllGoalsByUser(user *user.User, limit int, offset int) ([]*goal.Goal, error) {
-	return nil, nil
+func (s *storage) GetAllGoalsByUserId(userId int, status int) ([]*goal.Goal, error) {
+	query := `SELECT * 
+				FROM goals
+				WHERE user_id = ?
+				  AND status = ?
+				  AND deleted_at IS NULL`
+	var goals []*goal.Goal
+	err := s.client.Select(&goals, query, userId, status)
+	if err != nil {
+		return nil, err
+	}
+
+	return goals, nil
 }
-func (s *storage) GetGoalById(userId, goalId int) (*goal.Goal, error) {
-	return nil, nil
+
+func (s *storage) GetGoalById(userId int, goalId int) (*goal.Goal, error) {
+	query := `SELECT *
+				FROM goals
+				WHERE id = ? AND user_id = ? AND deleted_at IS NULL`
+	var g goal.Goal
+	err := s.client.Get(&g, query, goalId, userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &g, nil
 }
 func (s *storage) CreateGoal(g *goal.Goal) (*goal.Goal, error) {
 	logger := logging.GetLogger()
@@ -43,7 +66,7 @@ func (s *storage) CreateGoal(g *goal.Goal) (*goal.Goal, error) {
 	return g, nil
 }
 
-func (s *storage) UpdateGoal(g *goal.Goal, goalId string) (*goal.Goal, error) {
+func (s *storage) UpdateGoal(g *goal.Goal, goalId int) (*goal.Goal, error) {
 	logger := logging.GetLogger()
 	query := `UPDATE goals 
 				SET 
@@ -77,7 +100,7 @@ func (s *storage) UpdateGoal(g *goal.Goal, goalId string) (*goal.Goal, error) {
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		logger.Errorf("unexpected error while getting last inserted goal id: %s", err.Error())
+		logger.Errorf("unexpected error while getting rows affected: %s", err.Error())
 		return nil, err
 	}
 
@@ -86,4 +109,28 @@ func (s *storage) UpdateGoal(g *goal.Goal, goalId string) (*goal.Goal, error) {
 	}
 
 	return g, nil
+}
+
+func (s *storage) DeleteGoalById(userId int, goalId int) error {
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	query := `UPDATE goals 
+				SET deleted_at = ?
+				WHERE id = ? AND user_id = ? AND deleted_at IS NULL`
+
+	result, err := s.client.Exec(query, currentTime, goalId, userId)
+
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("no rows affected")
+	}
+
+	return nil
 }

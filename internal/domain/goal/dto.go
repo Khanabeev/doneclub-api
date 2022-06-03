@@ -35,6 +35,11 @@ func (r *RequestUpdateGoalDTO) Validate() []string {
 type ResponseGoalDTO struct {
 	Goal *ProfileGoal `json:"goal"`
 }
+
+type ResponseAllGoalsDTO struct {
+	Goals []*ProfileGoal `json:"goals"`
+}
+
 type ProfileGoal struct {
 	ID          int              `json:"id,omitempty"`
 	User        user.ProfileUser `json:"user"`
@@ -48,13 +53,7 @@ type ProfileGoal struct {
 	Status      string           `json:"status,omitempty"`
 }
 
-type ResponseGetOneGoalDTO struct {
-	ParentId    string `json:"parent_id,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	StartDate   string `json:"start_date,omitempty"`
-	EndDate     string `json:"end_date,omitempty"`
-	CreatedAt   string `json:"created_at,omitempty"`
-	UpdatedAt   string `json:"updated_at,omitempty"`
-	Status      string `json:"status,omitempty"`
+type ProfileGoalDeleted struct {
+	ID     int `json:"id,omitempty"`
+	UserId int `json:"user_id,omitempty"`
 }

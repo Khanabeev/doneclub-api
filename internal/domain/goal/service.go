@@ -6,7 +6,6 @@ import (
 	"doneclub-api/internal/adapters/api/auth"
 	"doneclub-api/pkg/apperrors"
 	"doneclub-api/pkg/logging"
-	"strconv"
 	"time"
 )
 
@@ -50,7 +49,7 @@ func (g service) CreateNewGoal(ctx context.Context, dto *RequestCreateGoalDTO) (
 	return resource, nil
 }
 
-func (g service) UpdateGoal(ctx context.Context, dto *RequestUpdateGoalDTO, goalId string) (*ResponseGoalDTO, *apperrors.AppError) {
+func (g service) UpdateGoal(ctx context.Context, dto *RequestUpdateGoalDTO, goalId int) (*ResponseGoalDTO, *apperrors.AppError) {
 	// Validation
 	validation := dto.Validate()
 	if validation != nil {
@@ -82,7 +81,67 @@ func (g service) UpdateGoal(ctx context.Context, dto *RequestUpdateGoalDTO, goal
 		return nil, apperrors.NewUnexpectedError("Unexpected database error")
 	}
 
-	updatedGoal.ID, _ = strconv.Atoi(goalId)
+	updatedGoal.ID = goalId
 	resource := updatedGoal.GetGoalProfileResource()
 	return resource, nil
+}
+
+func (g service) GetGoal(ctx context.Context, goalId int) (*ResponseGoalDTO, *apperrors.AppError) {
+	logger := logging.GetLogger()
+	userClaims, ok := ctx.Value(auth.ContextUserKey).(*auth.UserClaims)
+	if !ok {
+		logger.Error("Unexpected error while getting user claims in FindUserById method")
+		return nil, apperrors.NewUnauthorizedError("unexpected error")
+	}
+
+	goal, err := g.storage.GetGoalById(userClaims.ID, goalId)
+	if err == sql.ErrNoRows {
+		return nil, apperrors.NewNotFoundError("no goals found")
+	}
+	if err != nil {
+		return nil, apperrors.NewUnexpectedError(err.Error())
+	}
+
+	resource := goal.GetGoalProfileResource()
+	return resource, nil
+}
+
+func (g service) GetAllGoals(ctx context.Context, status string) (*ResponseAllGoalsDTO, *apperrors.AppError) {
+	logger := logging.GetLogger()
+	userClaims, ok := ctx.Value(auth.ContextUserKey).(*auth.UserClaims)
+	if !ok {
+		logger.Error("Unexpected error while getting user claims in FindUserById method")
+	}
+
+	allStatuses := GetAllStatuses()
+	statusInt, ok := allStatuses[status]
+	if !ok {
+		statusInt = allStatuses["active"]
+	}
+	goals, err := g.storage.GetAllGoalsByUserId(userClaims.ID, statusInt)
+	if err == sql.ErrNoRows {
+		return nil, apperrors.NewNotFoundError("no goals found")
+	}
+	if err != nil {
+		return nil, apperrors.NewUnexpectedError(err.Error())
+	}
+
+	return GetAllGoalsProfileResource(goals), nil
+}
+
+func (g service) DeleteGoal(ctx context.Context, goalId int) (*ProfileGoalDeleted, *apperrors.AppError) {
+	logger := logging.GetLogger()
+	userClaims, ok := ctx.Value(auth.ContextUserKey).(*auth.UserClaims)
+	if !ok {
+		logger.Error("Unexpected error while getting user claims in DeleteGoal method")
+		return nil, apperrors.NewUnauthorizedError("unexpected error")
+	}
+
+	err := g.storage.DeleteGoalById(userClaims.ID, goalId)
+
+	if err != nil {
+		return nil, apperrors.NewNotFoundError("no goals deleted")
+	}
+
+	return DeletedGoalResource(goalId, userClaims.ID), nil
 }
