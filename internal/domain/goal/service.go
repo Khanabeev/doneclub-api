@@ -113,12 +113,18 @@ func (g service) GetAllGoals(ctx context.Context, status string) (*ResponseAllGo
 		logger.Error("Unexpected error while getting user claims in FindUserById method")
 	}
 
+	var err error
+	var goals []*Goal
+
 	allStatuses := GetAllStatuses()
 	statusInt, ok := allStatuses[status]
+
 	if !ok {
-		statusInt = allStatuses["active"]
+		goals, err = g.storage.GetAllGoalsByUserId(userClaims.ID)
+	} else {
+		goals, err = g.storage.GetAllGoalsByUserIdAndStatus(userClaims.ID, statusInt)
 	}
-	goals, err := g.storage.GetAllGoalsByUserId(userClaims.ID, statusInt)
+
 	if err == sql.ErrNoRows {
 		return nil, apperrors.NewNotFoundError("no goals found")
 	}
@@ -144,4 +150,26 @@ func (g service) DeleteGoal(ctx context.Context, goalId int) (*ProfileGoalDelete
 	}
 
 	return DeletedGoalResource(goalId, userClaims.ID), nil
+}
+
+func GetStatusAsInt(status string) int {
+	switch status {
+	case "active":
+		return 1
+	case "inactive":
+		return 2
+	}
+	logging.GetLogger().Error("unknown goal status: " + status)
+	return 0
+}
+
+func GetAllStatuses() map[string]int {
+	statuses := make(map[string]int)
+
+	statuses["banned"] = 0
+	statuses["active"] = 1
+	statuses["inactive"] = 2
+
+	return statuses
+
 }

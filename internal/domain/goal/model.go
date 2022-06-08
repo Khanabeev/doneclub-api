@@ -2,7 +2,6 @@ package goal
 
 import (
 	"database/sql"
-	"doneclub-api/pkg/logging"
 )
 
 type Goal struct {
@@ -25,34 +24,16 @@ const (
 )
 
 func (u *Goal) getStatusAsString() string {
-	var status string
-	switch u.Status {
-	case active:
-		status = "active"
-	case inactive:
-		status = "inactive"
+
+	statusDictionary := map[int]string{
+		active:   "active",
+		inactive: "inactive",
 	}
+	status, ok := statusDictionary[u.Status]
+
+	if !ok {
+		return "undefined"
+	}
+
 	return status
-}
-
-func GetStatusAsInt(status string) int {
-	switch status {
-	case "active":
-		return 1
-	case "inactive":
-		return 2
-	}
-	logging.GetLogger().Error("unknown goal status: " + status)
-	return 0
-}
-
-func GetAllStatuses() map[string]int {
-	statuses := make(map[string]int)
-
-	statuses["banned"] = 0
-	statuses["active"] = 1
-	statuses["inactive"] = 2
-
-	return statuses
-
 }

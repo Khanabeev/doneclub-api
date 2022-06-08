@@ -19,7 +19,7 @@ func NewStorage(client *sqlx.DB) goal.Storage {
 	}
 }
 
-func (s *storage) GetAllGoalsByUserId(userId int, status int) ([]*goal.Goal, error) {
+func (s *storage) GetAllGoalsByUserIdAndStatus(userId int, status int) ([]*goal.Goal, error) {
 	query := `SELECT * 
 				FROM goals
 				WHERE user_id = ?
@@ -27,6 +27,20 @@ func (s *storage) GetAllGoalsByUserId(userId int, status int) ([]*goal.Goal, err
 				  AND deleted_at IS NULL`
 	var goals []*goal.Goal
 	err := s.client.Select(&goals, query, userId, status)
+	if err != nil {
+		return nil, err
+	}
+
+	return goals, nil
+}
+
+func (s *storage) GetAllGoalsByUserId(userId int) ([]*goal.Goal, error) {
+	query := `SELECT * 
+				FROM goals
+				WHERE user_id = ?
+				  AND deleted_at IS NULL`
+	var goals []*goal.Goal
+	err := s.client.Select(&goals, query, userId)
 	if err != nil {
 		return nil, err
 	}

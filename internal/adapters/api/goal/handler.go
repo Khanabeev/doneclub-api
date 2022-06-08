@@ -12,7 +12,7 @@ import (
 
 const (
 	createGoalUrl  = "/api/goals"
-	getAllGoalsUrl = "/api/goals/all"
+	getAllGoalsUrl = "/api/goals"
 	getGoalUrl     = "/api/goals/{goal_id:[0-9]+}"
 	updateGoalUrl  = "/api/goals/{goal_id:[0-9]+}"
 	deleteGoalUrl  = "/api/goals/{goal_id:[0-9]+}"
@@ -106,9 +106,14 @@ func (h handler) GetGoal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) GetAllGoals(w http.ResponseWriter, r *http.Request) {
-	status, _ := r.URL.Query()["status"]
+	var status string
+	keys, ok := r.URL.Query()["status"]
 
-	response, appErr := h.service.GetAllGoals(r.Context(), status[0])
+	if ok {
+		status = keys[0]
+	}
+
+	response, appErr := h.service.GetAllGoals(r.Context(), status)
 	if appErr != nil {
 		api.WriteResponse(w, appErr.Code, appErr.AsMessage())
 	} else {
