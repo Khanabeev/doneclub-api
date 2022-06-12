@@ -19,7 +19,7 @@ func NewStorage(client *sqlx.DB) goal.Storage {
 	}
 }
 
-func (s *storage) GetAllGoalsByUserIdAndStatus(userId int, status int) ([]*goal.Goal, error) {
+func (s *storage) GetAllGoalsByUserIdAndStatus(userId, status int) ([]*goal.Goal, error) {
 	query := `SELECT * 
 				FROM goals
 				WHERE user_id = ?

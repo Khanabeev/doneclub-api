@@ -35,9 +35,9 @@ func (g service) CreateNewGoal(ctx context.Context, dto *RequestCreateGoalDTO) (
 		Status:      GetStatusAsInt(dto.Status),
 		ParentID:    dto.ParentId,
 		Title:       dto.Title,
-		Description: dto.Description,
-		StartDate:   dto.StartDate,
-		EndDate:     dto.EndDate,
+		Description: sql.NullString{String: dto.Description, Valid: dto.Description != ""},
+		StartDate:   sql.NullString{String: dto.StartDate, Valid: dto.StartDate != ""},
+		EndDate:     sql.NullString{String: dto.EndDate, Valid: dto.EndDate != ""},
 	}
 	newGoal, err := g.storage.CreateGoal(goal)
 	if err != nil {
@@ -150,26 +150,4 @@ func (g service) DeleteGoal(ctx context.Context, goalId int) (*ProfileGoalDelete
 	}
 
 	return DeletedGoalResource(goalId, userClaims.ID), nil
-}
-
-func GetStatusAsInt(status string) int {
-	switch status {
-	case "active":
-		return 1
-	case "inactive":
-		return 2
-	}
-	logging.GetLogger().Error("unknown goal status: " + status)
-	return 0
-}
-
-func GetAllStatuses() map[string]int {
-	statuses := make(map[string]int)
-
-	statuses["banned"] = 0
-	statuses["active"] = 1
-	statuses["inactive"] = 2
-
-	return statuses
-
 }

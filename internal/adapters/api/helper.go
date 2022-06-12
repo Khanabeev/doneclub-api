@@ -12,3 +12,13 @@ func WriteResponse(w http.ResponseWriter, code int, data interface{}) {
 		panic(err)
 	}
 }
+
+func GetStatus(r *http.Request) string {
+	var status string
+	keys, ok := r.URL.Query()["status"]
+
+	if ok {
+		status = keys[0]
+	}
+	return status
+}

@@ -1,0 +1,13 @@
+package task
+
+import (
+	"context"
+	"doneclub-api/internal/domain/task"
+	"doneclub-api/pkg/apperrors"
+)
+
+type Service interface {
+	CreateNewTask(ctx context.Context, dto *task.RequestCreateTaskDTO) (*task.ResponseTaskDTO, *apperrors.AppError)
+	GetAllTasks(ctx context.Context, status string) (*task.ResponseAllTasksDTO, *apperrors.AppError)
+	GetAllTasksByGoal(ctx context.Context, status string, goalId int) (*task.ResponseTasksByGoalDTO, *apperrors.AppError)
+}

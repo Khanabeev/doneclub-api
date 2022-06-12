@@ -1,24 +1,22 @@
-DROP TABLE IF EXISTS doneclub.goals;
-CREATE TABLE doneclub.goals
+DROP TABLE IF EXISTS doneclub.tasks;
+CREATE TABLE doneclub.tasks
 (
     id          INT UNSIGNED     NOT NULL AUTO_INCREMENT,
     user_id     INT UNSIGNED     NOT NULL,
+    goal_id     INT UNSIGNED,
     status      TINYINT UNSIGNED NOT NULL,
-    parent_id   INT UNSIGNED,
     title       TEXT             NOT NULL,
-    description LONGTEXT,
-    start_date  DATETIME,
-    end_date    DATETIME,
+    deadline    DATETIME,
+    finished_at DATETIME,
     created_at  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at  DATETIME,
 
     PRIMARY KEY (id),
-    CONSTRAINT fk_goals_user_id FOREIGN KEY (user_id)
+    CONSTRAINT fk_tasks_user_id FOREIGN KEY (user_id)
         REFERENCES doneclub.users (id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_goals_parent_id FOREIGN KEY (parent_id)
+    CONSTRAINT fk_tasks_goal_id FOREIGN KEY (goal_id)
         REFERENCES doneclub.goals (id)
         ON DELETE SET NULL
-
 )
