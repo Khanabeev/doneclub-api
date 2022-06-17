@@ -1,16 +1,10 @@
 package goal
 
-import (
-	"doneclub-api/internal/domain/user"
-)
-
 func (g *Goal) GetGoalProfileResource() *ResponseGoalDTO {
 	return &ResponseGoalDTO{
 		Goal: &ProfileGoal{
-			ID: g.ID,
-			User: user.ProfileUser{
-				ID: g.UserID,
-			},
+			ID:          g.ID,
+			UserId:      g.UserID,
 			ParentId:    g.ParentID.Int64,
 			Title:       g.Title,
 			Description: g.Description.String,

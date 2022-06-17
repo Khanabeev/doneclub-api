@@ -12,4 +12,6 @@ type Service interface {
 	GetGoal(ctx context.Context, goalId int) (*goal.ResponseGoalDTO, *apperrors.AppError)
 	GetAllGoals(ctx context.Context, status string) (*goal.ResponseAllGoalsDTO, *apperrors.AppError)
 	DeleteGoal(ctx context.Context, goalId int) (*goal.ProfileGoalDeleted, *apperrors.AppError)
+	UpdateGoalParentId(ctx context.Context, goalId, parentId int) (*goal.ResponseGoalDTO, *apperrors.AppError)
+	DeleteGoalParentId(ctx context.Context, goalId int) (*goal.ResponseGoalDTO, *apperrors.AppError)
 }

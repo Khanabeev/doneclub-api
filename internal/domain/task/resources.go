@@ -3,13 +3,14 @@ package task
 func (t *Task) GetTaskProfileResource() *ResponseTaskDTO {
 	return &ResponseTaskDTO{
 		Task: &ProfileTask{
-			ID:        t.ID,
-			UserID:    t.UserID,
-			GoalID:    t.GoalID.Int64,
-			Title:     t.Title,
-			Deadline:  t.Deadline.String,
-			CreatedAt: t.CreatedAt,
-			Status:    t.getStatusAsString(),
+			ID:         t.ID,
+			UserID:     t.UserID,
+			GoalID:     t.GoalID.Int64,
+			Title:      t.Title,
+			Deadline:   t.Deadline.String,
+			FinishedAt: t.FinishedAt.String,
+			CreatedAt:  t.CreatedAt,
+			Status:     t.getStatusAsString(),
 		},
 	}
 }

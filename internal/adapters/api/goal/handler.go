@@ -11,11 +11,13 @@ import (
 )
 
 const (
-	createGoalUrl  = "/api/goals"
-	getAllGoalsUrl = "/api/goals"
-	getGoalUrl     = "/api/goals/{goal_id:[0-9]+}"
-	updateGoalUrl  = "/api/goals/{goal_id:[0-9]+}"
-	deleteGoalUrl  = "/api/goals/{goal_id:[0-9]+}"
+	createGoalUrl         = "/api/goals"
+	getAllGoalsUrl        = "/api/goals"
+	getGoalUrl            = "/api/goals/{goal_id:[0-9]+}"
+	updateGoalUrl         = "/api/goals/{goal_id:[0-9]+}"
+	updateGoalParentIdUrl = "/api/goals/{goal_id:[0-9]+}/parent/{parent_id:[0-9]+}"
+	deleteGoalParentIdUrl = "/api/goals/{goal_id:[0-9]+}/parent"
+	deleteGoalUrl         = "/api/goals/{goal_id:[0-9]+}"
 )
 
 type handler struct {
@@ -36,6 +38,16 @@ func (h *handler) Register(router *mux.Router) {
 		HandleFunc(updateGoalUrl, h.UpdateGoal).
 		Methods(http.MethodPut).
 		Name("UpdateGoal")
+
+	router.
+		HandleFunc(updateGoalParentIdUrl, h.UpdateGoalParentId).
+		Methods(http.MethodPut).
+		Name("UpdateGoalParentId")
+
+	router.
+		HandleFunc(deleteGoalParentIdUrl, h.DeleteGoalParentId).
+		Methods(http.MethodDelete).
+		Name("DeleteGoalParentId")
 
 	router.
 		HandleFunc(getGoalUrl, h.GetGoal).
@@ -130,6 +142,40 @@ func (h handler) DeleteGoal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, appErr := h.service.DeleteGoal(r.Context(), goalId)
+	if appErr != nil {
+		api.WriteResponse(w, appErr.Code, appErr.AsMessage())
+	} else {
+		api.WriteResponse(w, http.StatusOK, response)
+	}
+}
+
+func (h handler) UpdateGoalParentId(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	goalId, err1 := strconv.Atoi(vars["goal_id"])
+	parentId, err2 := strconv.Atoi(vars["parent_id"])
+	if err1 != nil || err2 != nil {
+		newErr := apperrors.NewUnexpectedError("Unexpected error")
+		api.WriteResponse(w, newErr.Code, newErr.AsMessage())
+	}
+
+	response, appErr := h.service.UpdateGoalParentId(r.Context(), goalId, parentId)
+	if appErr != nil {
+		api.WriteResponse(w, appErr.Code, appErr.AsMessage())
+	} else {
+		api.WriteResponse(w, http.StatusOK, response)
+	}
+}
+
+func (h handler) DeleteGoalParentId(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	goalId, err := strconv.Atoi(vars["goal_id"])
+
+	if err != nil {
+		newErr := apperrors.NewUnexpectedError("Unexpected error")
+		api.WriteResponse(w, newErr.Code, newErr.AsMessage())
+	}
+
+	response, appErr := h.service.DeleteGoalParentId(r.Context(), goalId)
 	if appErr != nil {
 		api.WriteResponse(w, appErr.Code, appErr.AsMessage())
 	} else {
